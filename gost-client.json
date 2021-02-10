@@ -1,0 +1,10 @@
+{
+    "Debug": false,
+    "Retries": 0,
+    "ServeNodes": [
+        ":1080"
+    ],
+    "ChainNodes": [
+        "https+kcp://user:passwd@host:443"
+    ]
+}

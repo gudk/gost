@@ -121,11 +121,17 @@ install_gost() {
     read -p "请输入你要使用的域名：" DOMAIN
     read -p "请输入你要使用的用户名:" USER
     read -p "请输入你要使用的密码:" PASS
-    read -p "请输入HTTP/2需要侦听的端口号(443)：" PORT 
+    read -p "请输入HTTP/2需要侦听的端口号(443)：" HTTPPORT
+    read -p "请输入HTTP/2需要侦听的端口号(1080)：" SOCKSPORT 
 
-    if [[ -z "${PORT// }" ]] || ! [[ "${PORT}" =~ ^[0-9]+$ ]] || ! [ "$PORT" -ge 1 -a "$PORT" -le 655535 ]; then
+    if [[ -z "${HTTPPORT// }" ]] || ! [[ "${HTTPPORT}" =~ ^[0-9]+$ ]] || ! [ "$HTTPPORT" -ge 1 -a "$HTTPPORT" -le 655535 ]; then
         echo -e "${COLOR_ERROR}非法端口,使用默认端口 443 !${COLOR_NONE}"
         PORT=443
+    fi
+
+    if [[ -z "${SOCKSPORT// }" ]] || ! [[ "${SOCKSPORT}" =~ ^[0-9]+$ ]] || ! [ "$SOCKSPORT" -ge 1 -a "$SOCKSPORT" -le 655535 ]; then
+        echo -e "${COLOR_ERROR}非法端口,使用默认端口 1080 !${COLOR_NONE}"
+        PORT=1080
     fi
 
     BIND_IP=0.0.0.0
@@ -136,7 +142,8 @@ install_gost() {
     sudo docker run -d --name gost \
         -v ${CERT_DIR}:${CERT_DIR}:ro \
         --net=host ginuerzh/gost \
-        -L "socks5+tls://${USER}:${PASS}@${BIND_IP}:${PORT}?cert=${CERT}&key=${KEY}&probe_resist=code:400&knock=www.google.com"
+	-L "http2://${USER}:${PASS}@${BIND_IP}:${HTTPPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com" \
+        -L "socks5+tls://${USER}:${PASS}@${BIND_IP}:${SOCKSPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com"
 }
 
 crontab_exists() {
@@ -234,12 +241,12 @@ init(){
 
     while [ 1 == 1 ]
     do
-        PS3="Please select a option:"
+        PS3="请选择项目:"
         re='^[0-9]+$'
         select opt in "安装 TCP BBR 拥塞控制算法" \
                     "安装 Docker 服务程序" \
                     "创建 SSL 证书" \
-                    "安装 Gost SOCKS5+TLS 代理服务" \
+                    "安装 Gost 代理服务" \
                     "安装 ShadowSocks 代理服务" \
                     "安装 VPN/L2TP 服务" \
                     "安装 Brook 代理服务" \

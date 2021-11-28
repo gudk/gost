@@ -53,11 +53,15 @@ install_bbr() {
 install_docker() {
     if ! [ -x "$(command -v docker)" ]; then
         echo "开始安装 Docker CE"
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-        sudo add-apt-repository \
-            "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) \
-            stable"
+	sudo apt-get install \
+	    ca-certificates \
+            curl \
+    	    gnupg \
+    	    lsb-release
+	curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update -qq
         sudo apt-get install -y docker-ce
     else
@@ -80,11 +84,7 @@ check_container(){
 install_certbot() {
     echo "开始安装 certbot 命令行工具"
     sudo apt-get update -qq
-    sudo apt-get install -y snap
-    sudo snap install core
-    sudo snap refresh core
-    sudo snap install --classic certbot
-    sudo ln -s /snap/bin/certbot /usr/bin/certbot
+    sudo apt-get install -y certbot
 }
 
 create_cert() {

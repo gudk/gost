@@ -142,7 +142,7 @@ install_gost() {
     sudo docker run -d --name gost \
         -v ${CERT_DIR}:${CERT_DIR}:ro \
         --net=host ginuerzh/gost \
-	-L "https://${USER}:${PASS}@${BIND_IP}:${HTTPPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com" \
+	-L "http2://${USER}:${PASS}@${BIND_IP}:${HTTPPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com" \
         -L "socks5+tls://${USER}:${PASS}@${BIND_IP}:${SOCKSPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com"
 }
 

@@ -122,17 +122,12 @@ install_gost() {
     read -p "请输入你要使用的用户名:" USER
     read -p "请输入你要使用的密码:" PASS
     read -p "请输入HTTP/2需要侦听的端口号(443)：" HTTPPORT
-    read -p "请输入HTTP/2需要侦听的端口号(1080)：" SOCKSPORT 
 
     if [[ -z "${HTTPPORT// }" ]] || ! [[ "${HTTPPORT}" =~ ^[0-9]+$ ]] || ! [ "$HTTPPORT" -ge 1 -a "$HTTPPORT" -le 655535 ]; then
         echo -e "${COLOR_ERROR}非法端口,使用默认端口 443 !${COLOR_NONE}"
         PORT=443
     fi
 
-    if [[ -z "${SOCKSPORT// }" ]] || ! [[ "${SOCKSPORT}" =~ ^[0-9]+$ ]] || ! [ "$SOCKSPORT" -ge 1 -a "$SOCKSPORT" -le 655535 ]; then
-        echo -e "${COLOR_ERROR}非法端口,使用默认端口 1080 !${COLOR_NONE}"
-        PORT=1080
-    fi
 
     BIND_IP=0.0.0.0
     CERT_DIR=/etc/letsencrypt/
@@ -142,8 +137,7 @@ install_gost() {
     sudo docker run -d --name gost \
         -v ${CERT_DIR}:${CERT_DIR}:ro \
         --net=host ginuerzh/gost \
-	-L "https://${USER}:${PASS}@${BIND_IP}:${HTTPPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com" \
-        -L "socks5+tls://${USER}:${PASS}@${BIND_IP}:${SOCKSPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com"
+	-L "http2://${USER}:${PASS}@${BIND_IP}:${HTTPPORT}?cert=${CERT}&key=${KEY}&probe_resist=code:404&knock=www.google.com"
 }
 
 crontab_exists() {
